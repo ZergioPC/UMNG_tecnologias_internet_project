@@ -1,3 +1,174 @@
-<section>
-  HERO
+
+---
+import imgSample from "@/assets/img/sample.png";
+---
+
+<section class="hero-section">
+  <div class="hero-bg">
+    <img src={imgSample.src} alt="Imagen de fondo del restaurante" />
+  </div>
+
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          El auténtico sabor del arroz chino
+        </h1>
+
+        <div class="hero-buttons">
+          <a href="#" class="hero-btn">Carta</a>
+          <a href="#" class="hero-btn">Domicilios</a>
+        </div>
+      </div>
+
+      <div class="hero-image">
+        <img src={imgSample.src} alt="Plato de arroz chino" />
+      </div>
+    </div>
+  </div>
 </section>
+
+<style>
+  .hero-section {
+    position: relative;
+    min-height: 600px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Background */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Main container */
+  .hero-container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 24px;
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 40px;
+    color: #fff;
+  }
+
+  /* Text */
+  .hero-text {
+    max-width: 550px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    margin: 0 0 30px;
+  }
+
+  /* Buttons */
+  .hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .hero-btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border: 2px solid #fff;
+    border-radius: 6px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .hero-btn:hover {
+    background: #fff;
+    color: #222;
+  }
+
+  /* Hero image */
+  .hero-image {
+    width: 100%;
+    max-width: 550px;
+    justify-self: end;
+  }
+
+  .hero-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-section {
+      min-height: auto;
+    }
+
+    .hero-container {
+      padding: 80px 24px;
+    }
+
+    .hero-content {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero-text {
+      margin: 0 auto;
+    }
+
+    .hero-buttons {
+      justify-content: center;
+    }
+
+    .hero-image {
+      max-width: 400px;
+      justify-self: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-container {
+      padding: 60px 20px;
+    }
+
+    .hero-buttons {
+      flex-direction: column;
+    }
+
+    .hero-btn {
+      text-align: center;
+    }
+  }
+</style>
