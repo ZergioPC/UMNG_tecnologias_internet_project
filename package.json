@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "UMNG_Proyecto_tecs_internet",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^11.1.9",
-    "astro": "^7.4.2"
+    "astro": "^7.4.2",
+    "better-sqlite3": "^13.0.3"
   }
 }

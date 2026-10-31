@@ -1,0 +1,41 @@
+<form id="formulario">
+    <div class="form-group">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required />
+    </div>
+    <div class="form-group">
+        <label for="correo">Correo electronico</label>
+        <input type="email" class="form-control" id="correo" name="correo" required />
+    </div>
+    <div class="form-group">
+        <label for="mensaje">Mensaje</label>
+        <textarea class="form-control" id="mensaje" rows="4" name="mensaje"></textarea>
+    </div>
+    <button type="submit" class="btn btn-default">Enviar</button>
+    </form>
+
+<p id="respuesta"></p>
+
+<script>
+const formulario = document.querySelector('#formulario') as HTMLFormElement;
+const respuesta = document.querySelector('#respuesta');
+
+formulario?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const datos = new FormData(formulario);
+
+    try {
+        const resultado = await fetch('/registrar', {
+            method: 'POST',
+            body: datos
+        });
+
+        if (respuesta){
+            respuesta.textContent = await resultado.text();
+        }
+    } catch (error) {
+        respuesta ? respuesta.textContent = 'Error al enviar el formulario' : false;
+    }
+});
+</script>

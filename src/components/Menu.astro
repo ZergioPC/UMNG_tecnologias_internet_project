@@ -1,4 +1,6 @@
 ---
+import FormContact from "./FormContact.astro";
+
 const productos = [
   { id: 1, nombre: "Producto 1", placeholder: "IMG 1" },
   { id: 2, nombre: "Producto 2", placeholder: "IMG 2" },
@@ -137,21 +139,7 @@ const precios = [
   <h3 class="section-title">Contactenos</h3>
   <div class="row">
     <div class="col-sm-8 col-md-6">
-      <form action="#" method="post">
-        <div class="form-group">
-          <label for="nombre">Nombre completo</label>
-          <input type="text" class="form-control" id="nombre" name="nombre" required />
-        </div>
-        <div class="form-group">
-          <label for="correo">Correo electronico</label>
-          <input type="email" class="form-control" id="correo" name="correo" required />
-        </div>
-        <div class="form-group">
-          <label for="mensaje">Mensaje</label>
-          <textarea class="form-control" id="mensaje" rows="4"></textarea>
-        </div>
-        <button type="submit" class="btn btn-default">Enviar</button>
-      </form>
+      <FormContact />
     </div>
   </div>
 </section>
@@ -277,6 +265,7 @@ const precios = [
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  color: #333;
 }
 
 .carousel-btn:hover {
