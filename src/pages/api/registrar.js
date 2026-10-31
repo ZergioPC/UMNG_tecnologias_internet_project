@@ -1,4 +1,4 @@
-import db from '../lib/database.js';
+import db from '../../lib/database.js';
 
 const insertar = db.prepare(`
   INSERT INTO registros (nombre, correo, mensaje, fecha)

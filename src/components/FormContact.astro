@@ -26,7 +26,7 @@ formulario?.addEventListener('submit', async (event) => {
     const datos = new FormData(formulario);
 
     try {
-        const resultado = await fetch('/registrar', {
+        const resultado = await fetch('/api/registrar', {
             method: 'POST',
             body: datos
         });
