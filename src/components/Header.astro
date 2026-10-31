@@ -1,3 +1,300 @@
-<header>
-  HEADER
+---
+import HeaderCart from "./HeaderCart.astro";
+import logotipo from "@/assets/img/logo_imagotipo.png";
+---
+
+<header id="header">
+  <div class="header-logo">
+    <img src={logotipo.src} alt="Logo de Los Chinos Hermanos">
+  </div>
+
+  <!-- Desktop navigation -->
+  <nav class="desktop-nav">
+    <ul>
+      <li><a href="#menu">Menú</a></li>
+      <li><a href="#categorias">Categorías</a></li>
+      <li><a href="#recomendados">Recomendados</a></li>
+      <li><a href="#precios">Precios</a></li>
+    </ul>
+  </nav>
+
+  <div class="header-actions">
+    <HeaderCart />
+
+    <!-- Mobile menu button -->
+    <button
+      id="burger-button"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="header-burger"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
 </header>
+
+<!-- Mobile navigation -->
+<aside id="header-burger" aria-hidden="true" inert>
+  <nav>
+    <ul>
+      <li><a href="#menu">Menú</a></li>
+      <li><a href="#categorias">Categorías</a></li>
+      <li><a href="#recomendados">Recomendados</a></li>
+      <li><a href="#precios">Precios</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<script>
+  const burgerButton = document.querySelector<HTMLButtonElement>(
+    "#burger-button"
+  );
+
+  const burgerMenu = document.querySelector<HTMLElement>(
+    "#header-burger"
+  );
+
+  function closeMenu() {
+    burgerMenu?.classList.remove("active");
+    burgerButton?.classList.remove("active");
+
+    burgerButton?.setAttribute("aria-expanded", "false");
+    burgerButton?.setAttribute("aria-label", "Abrir menú");
+
+    burgerMenu?.setAttribute("aria-hidden", "true");
+    burgerMenu?.setAttribute("inert", "");
+  }
+
+  function toggleMenu() {
+    const isOpen = burgerMenu?.classList.toggle("active");
+
+    burgerButton?.classList.toggle("active", !!isOpen);
+
+    burgerButton?.setAttribute("aria-expanded", String(!!isOpen));
+    burgerButton?.setAttribute(
+      "aria-label",
+      isOpen ? "Cerrar menú" : "Abrir menú"
+    );
+
+    if (isOpen) {
+      burgerMenu?.removeAttribute("inert");
+      burgerMenu?.setAttribute("aria-hidden", "false");
+    } else {
+      burgerMenu?.setAttribute("inert", "");
+      burgerMenu?.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  burgerButton?.addEventListener("click", toggleMenu);
+
+  // Close menu when clicking a navigation link
+  burgerMenu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (event) => {
+    const target = event.target as Node;
+
+    if (
+      !burgerMenu?.contains(target) &&
+      !burgerButton?.contains(target)
+    ) {
+      closeMenu();
+    }
+  });
+
+  // Close menu with Escape
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeMenu();
+    }
+  });
+
+  // Close menu when returning to desktop layout
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      closeMenu();
+    }
+  });
+</script>
+
+
+<style>
+
+/* HEADER */
+
+#header {
+  width: 100%;
+  height: 80px;
+  padding: 0 5%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  position: relative;
+  z-index: 100;
+
+  background-color: white;
+}
+
+/* LOGO */
+
+.header-logo img {
+  display: block;
+  width: 150px;
+  height: auto;
+}
+
+/* DESKTOP NAV */
+
+.desktop-nav ul {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.desktop-nav a {
+  text-decoration: none;
+  color: #222;
+
+  font-size: 16px;
+  font-weight: 500;
+
+  transition: color 0.2s ease;
+}
+
+.desktop-nav a:hover {
+  color: #d33;
+}
+
+/* HEADER ACTIONS */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* BURGER BUTTON */
+
+#burger-button {
+  display: none;
+
+  width: 35px;
+  height: 35px;
+  padding: 5px;
+
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#burger-button span {
+  display: block;
+  width: 100%;
+  height: 3px;
+
+  background-color: #222;
+  border-radius: 3px;
+
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* BURGER ANIMATION */
+
+#burger-button.active span:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+#burger-button.active span:nth-child(2) {
+  opacity: 0;
+}
+
+#burger-button.active span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* MOBILE MENU */
+
+#header-burger {
+  display: none;
+
+  position: absolute;
+  top: 80px;
+  left: 0;
+
+  width: 100%;
+  padding: 25px 5%;
+
+  background-color: white;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0.3s ease;
+
+  z-index: 99;
+}
+
+#header-burger.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#header-burger ul {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  padding: 0;
+  margin: 0;
+
+  list-style: none;
+}
+
+#header-burger a {
+  display: block;
+
+  text-decoration: none;
+  color: #222;
+
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  #burger-button {
+    display: flex;
+  }
+
+  #header-burger {
+    display: block;
+  }
+}
+
+</style>
