@@ -1,0 +1,193 @@
+---
+const data = [
+  { name: "Producto 1", price: 3000 },
+  { name: "Producto 2", price: 3000 }
+];
+
+const total = data.reduce((sum, item) => sum + item.price, 0);
+
+const formatPrice = (price) =>
+  new Intl.NumberFormat("es-CO").format(price);
+---
+
+<div class="header-cart-container">
+  <button
+    id="btn_header_cart"
+    type="button"
+    aria-expanded="false"
+    aria-controls="header_carrito"
+  >
+    Carrito ({data.length})
+  </button>
+
+  <article
+    id="header_carrito"
+    class="cart-is-hide"
+    aria-label="Carrito de compras"
+  >
+    <header>
+      <h2>Carrito</h2>
+      <button id="btn_close_cart" type="button" aria-label="Cerrar carrito">
+        &times;
+      </button>
+    </header>
+
+    <div class="cart-products">
+      {data.map((item) => (
+        <div class="cart-product">
+          <span>{item.name}</span>
+          <span>${formatPrice(item.price)}</span>
+        </div>
+      ))}
+    </div>
+
+    <footer>
+      <div class="cart-total">
+        <strong>Total:</strong>
+        <strong>${formatPrice(total)}</strong>
+      </div>
+
+      <button class="checkout-btn" type="button">
+        Finalizar compra
+      </button>
+    </footer>
+  </article>
+</div>
+
+<script>
+  const $headerCartArticle = document.querySelector("#header_carrito");
+  const $headerCartBtn = document.querySelector("#btn_header_cart");
+  const $closeCartBtn = document.querySelector("#btn_close_cart");
+
+  const toggleCart = (show) => {
+    if (!$headerCartArticle || !$headerCartBtn) return;
+
+    $headerCartArticle.classList.toggle("cart-is-hide", !show);
+    $headerCartBtn.setAttribute("aria-expanded", String(show));
+  };
+
+  $headerCartBtn?.addEventListener("click", () => {
+    const isHidden = $headerCartArticle?.classList.contains("cart-is-hide");
+    toggleCart(isHidden ?? false);
+  });
+
+  $closeCartBtn?.addEventListener("click", () => {
+    toggleCart(false);
+  });
+
+  document.addEventListener("click", (event) => {
+    if (
+      !$headerCartArticle?.contains(event.target as Node) &&
+      !$headerCartBtn?.contains(event.target as Node)
+    ) {
+      toggleCart(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") toggleCart(false);
+  });
+</script>
+
+<style>
+  .header-cart-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  #header_carrito {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 1000;
+
+    width: 340px;
+    max-width: calc(100vw - 32px);
+
+    background: white;
+    color: #222;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 15%);
+    overflow: hidden;
+  }
+
+  .cart-is-hide {
+    display: none !important;
+  }
+
+  #header_carrito header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+  }
+
+  #header_carrito h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  #btn_close_cart {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .cart-products {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .cart-product,
+  .cart-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #header_carrito footer {
+    padding: 16px;
+    border-top: 1px solid #eee;
+  }
+
+  .cart-total {
+    margin-bottom: 16px;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #222;
+    color: white;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .header-cart-container {
+      position: static;
+    }
+
+    #header_carrito {
+      position: absolute;
+      top: 100%;
+      left: 8px;
+      right: 8px;
+      width: auto;
+      max-width: none;
+      margin-top: 8px;
+    }
+
+    .cart-products {
+      max-height: 50vh;
+    }
+  }
+</style>
