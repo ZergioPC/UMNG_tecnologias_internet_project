@@ -1,8 +1,83 @@
+:root {
+    /* Primary */
+    --color-primary: #b12715;
+    --color-primary-hover: #d8a61d;
+
+    /* Secondary */
+    --color-secondary: #e5e7eb;
+    --color-secondary-hover: #d1d5db;
+
+    /* Feedback */
+    --color-danger: #dc2626;
+    --color-success: #16a34a;
+    --color-warning: #f59e0b;
+
+    /* Neutral */
+    --color-text: #1f2937;
+    --color-background: #ffffff;
+    --color-border: #e5e7eb;
+}
+
 * {
   margin: 0;
   padding: 0;
 }
 
-body {
-  background-color: red;
+
+/* MARK: Botones */
+
+/* Global button styles */
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    padding: 0.65rem 1.2rem;
+
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.2;
+
+    color: var(--color-background);
+    background-color: var(--color-primary);
+
+    border: none;
+    border-radius: 0.5rem;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+/* Hover */
+button:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+}
+
+/* Active / Click */
+button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+/* Keyboard focus */
+button:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}
+
+/* Disabled */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Remove default appearance */
+button {
+    appearance: none;
+    -webkit-appearance: none;
 }
