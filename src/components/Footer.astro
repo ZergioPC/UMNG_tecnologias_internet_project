@@ -1,3 +1,39 @@
-<footer>
-  FOOTER
+---
+// src/components/Footer.astro
+import logo from "@/assets/img/logo.png";
+---
+
+<footer class="well footer-main">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-md-3">
+                <h4 class="section-title-sm">LOGO</h4>
+                <img src={logo.src} alt="Logo Los Chinos Hermanos" class="footer-logo">
+                <p class="footer-brand-text">Los Chinos Hermanos</p>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <h4 class="section-title-sm">MENU</h4>
+                <p>Link 1</p>
+                <p>Link 2</p>
+                <p>Link 3</p>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <h4 class="section-title-sm">CONTACTO</h4>
+                <p>Dato 1</p>
+                <p>Dato 2</p>
+                <p>Dato 3</p>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <h4 class="section-title-sm">SIGUENOS</h4>
+                <div>
+                    <span class="footer-social-icon">X</span>
+                    <span class="footer-social-icon">X</span>
+                    <span class="footer-social-icon">X</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container footer-bottom">
+        <p class="footer-copyright">© 2026 Los Chinos Hermanos. Todos los derechos reservados.</p>
+    </div>
 </footer>
