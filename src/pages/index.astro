@@ -1,13 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-
 import Header from '@/components/Header.astro';
-
 import Hero from '@/components/Hero.astro';
 import Menu from '@/components/Menu.astro';
-
-import Carrusel from '@/components/Carrusel.vue';
-
 import Footer from '@/components/Footer.astro';
 ---
 
@@ -16,11 +11,7 @@ import Footer from '@/components/Footer.astro';
 
 	<main>
 		<Hero />
-
 		<Menu />
-
-		<Carrusel client:load/>
-
 	</main>
 
 	<Footer />

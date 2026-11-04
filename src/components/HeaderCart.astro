@@ -1,12 +1,6 @@
 ---
-const data = [
-  { name: "Producto 1", price: 3000 },
-  { name: "Producto 2", price: 3000 }
-];
-
-const total = data.reduce((sum, item) => sum + item.price, 0);
-
-const formatPrice = (price) =>
+// Estado inicial SSR
+const formatPrice = (price: number) =>
   new Intl.NumberFormat("es-CO").format(price);
 ---
 
@@ -17,7 +11,7 @@ const formatPrice = (price) =>
     aria-expanded="false"
     aria-controls="header_carrito"
   >
-    Carrito ({data.length})
+    🛒 Carrito (0)
   </button>
 
   <article
@@ -26,25 +20,24 @@ const formatPrice = (price) =>
     aria-label="Carrito de compras"
   >
     <header>
-      <h2>Carrito</h2>
+      <h2>Tu Pedido</h2>
       <button id="btn_close_cart" type="button" aria-label="Cerrar carrito">
         &times;
       </button>
     </header>
 
-    <div class="cart-products">
-      {data.map((item) => (
-        <div class="cart-product">
-          <span>{item.name}</span>
-          <span>${formatPrice(item.price)}</span>
-        </div>
-      ))}
+    <div class="cart-products" id="cart_products_list">
+      <div class="cart-empty-msg">
+        <p>🥢</p>
+        <p>Tu carrito está vacío</p>
+        <span>Agrega platos desde la carta</span>
+      </div>
     </div>
 
     <footer>
       <div class="cart-total">
         <strong>Total:</strong>
-        <strong>${formatPrice(total)}</strong>
+        <strong id="cart_total_display">$0</strong>
       </div>
 
       <button class="checkout-btn" type="button">
@@ -55,13 +48,159 @@ const formatPrice = (price) =>
 </div>
 
 <script>
+  interface CartItem {
+    id?: number;
+    name: string;
+    price: number;
+    cantidad: number;
+    imagen?: string;
+  }
+
+  const STORAGE_KEY = "chinos_cart";
   const $headerCartArticle = document.querySelector("#header_carrito");
   const $headerCartBtn = document.querySelector("#btn_header_cart");
   const $closeCartBtn = document.querySelector("#btn_close_cart");
+  const $cartProductsList = document.querySelector("#cart_products_list");
+  const $cartTotalDisplay = document.querySelector("#cart_total_display");
+  const $checkoutBtn = document.querySelector(".checkout-btn");
 
-  const toggleCart = (show) => {
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("es-CO").format(price);
+
+  function getCart(): CartItem[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return [];
+  }
+
+  function saveCart(cart: CartItem[]) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function renderCart() {
+    const cart = getCart();
+    const totalItems = cart.reduce((sum, item) => sum + (item.cantidad || 1), 0);
+    const totalPrice = cart.reduce(
+      (sum, item) => sum + (item.price || 0) * (item.cantidad || 1),
+      0
+    );
+
+    // Actualizar botón del Header
+    if ($headerCartBtn) {
+      $headerCartBtn.textContent = `🛒 Carrito (${totalItems})`;
+    }
+
+    // Actualizar lista
+    if ($cartProductsList) {
+      if (cart.length === 0) {
+        $cartProductsList.innerHTML = `
+          <div style="text-align: center; color: #888; padding: 24px 10px;">
+            <p style="margin: 0 0 6px 0; font-size: 1.6rem;">🥢</p>
+            <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 0.95rem; color: #444;">Tu carrito está vacío</p>
+            <span style="font-size: 0.8rem; color: #888;">Agrega platos desde la carta</span>
+          </div>
+        `;
+      } else {
+        $cartProductsList.innerHTML = cart
+          .map(
+            (item, index) => `
+          <div class="cart-product-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+            <div style="display: flex; flex-direction: column; gap: 3px; max-width: 65%;">
+              <span style="font-weight: 700; font-size: 0.92rem; color: #111; line-height: 1.2;">${item.name}</span>
+              <span style="font-size: 0.8rem; color: #666;">Cant: ${item.cantidad} &times; $${formatPrice(item.price)}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: 800; color: #b12715; font-size: 0.95rem;">$${formatPrice(item.price * item.cantidad)}</span>
+              <button 
+                type="button" 
+                class="btn-eliminar-item" 
+                data-index="${index}" 
+                style="background: #f3f4f6; border: none; color: #666; cursor: pointer; font-size: 1.1rem; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;"
+                title="Eliminar unidad"
+                aria-label="Eliminar ${item.name}"
+              >&times;</button>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        // Listeners para eliminar / restar
+        $cartProductsList.querySelectorAll(".btn-eliminar-item").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const idx = parseInt(
+              (e.currentTarget as HTMLElement).dataset.index || "0",
+              10
+            );
+            eliminarDelCarrito(idx);
+          });
+        });
+      }
+    }
+
+    // Actualizar Total
+    if ($cartTotalDisplay) {
+      $cartTotalDisplay.textContent = `$${formatPrice(totalPrice)}`;
+    }
+  }
+
+  function eliminarDelCarrito(index: number) {
+    const cart = getCart();
+    if (index >= 0 && index < cart.length) {
+      if (cart[index].cantidad > 1) {
+        cart[index].cantidad--;
+      } else {
+        cart.splice(index, 1);
+      }
+      saveCart(cart);
+      renderCart();
+    }
+  }
+
+  function agregarAlCarrito(producto: {
+    id?: number;
+    name: string;
+    price: number;
+    cantidad?: number;
+    imagen?: string;
+  }) {
+    const cart = getCart();
+    const cant = producto.cantidad || 1;
+    const existente = cart.find((item) => item.name === producto.name);
+
+    if (existente) {
+      existente.cantidad += cant;
+    } else {
+      cart.push({
+        id: producto.id,
+        name: producto.name,
+        price: producto.price,
+        cantidad: cant,
+        imagen: producto.imagen,
+      });
+    }
+
+    saveCart(cart);
+    renderCart();
+
+    // Abrir brevemente el carrito para dar confirmación visual
+    toggleCart(true);
+  }
+
+  // Toggle drawer
+  const toggleCart = (show: boolean) => {
     if (!$headerCartArticle || !$headerCartBtn) return;
-
     $headerCartArticle.classList.toggle("cart-is-hide", !show);
     $headerCartBtn.setAttribute("aria-expanded", String(show));
   };
@@ -75,10 +214,17 @@ const formatPrice = (price) =>
     toggleCart(false);
   });
 
+  $checkoutBtn?.addEventListener("click", () => {
+    window.location.href = "/pagos";
+  });
+
   document.addEventListener("click", (event) => {
     if (
       !$headerCartArticle?.contains(event.target as Node) &&
-      !$headerCartBtn?.contains(event.target as Node)
+      !$headerCartBtn?.contains(event.target as Node) &&
+      !(event.target as HTMLElement)?.closest(".btn-agregar-rapido") &&
+      !(event.target as HTMLElement)?.closest(".btn-card-agregar") &&
+      !(event.target as HTMLElement)?.closest(".btn-pedir")
     ) {
       toggleCart(false);
     }
@@ -87,6 +233,16 @@ const formatPrice = (price) =>
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") toggleCart(false);
   });
+
+  // Escuchar cuando cualquier componente Vue añade un plato
+  window.addEventListener("cart:add", ((event: CustomEvent) => {
+    if (event.detail) {
+      agregarAlCarrito(event.detail);
+    }
+  }) as EventListener);
+
+  // Inicializar al cargar
+  renderCart();
 </script>
 
 <style>
@@ -101,15 +257,27 @@ const formatPrice = (price) =>
     right: 0;
     z-index: 1000;
 
-    width: 340px;
+    width: 360px;
     max-width: calc(100vw - 32px);
 
     background: white;
     color: #222;
     border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 15%);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
     overflow: hidden;
+    animation: fadeInCart 0.2s ease-out;
+  }
+
+  @keyframes fadeInCart {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .cart-is-hide {
@@ -120,13 +288,15 @@ const formatPrice = (price) =>
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 16px 20px;
     border-bottom: 1px solid #eee;
+    background: #fdfdfd;
   }
 
   #header_carrito h2 {
     margin: 0;
     font-size: 18px;
+    font-weight: 700;
   }
 
   #btn_close_cart {
@@ -134,41 +304,63 @@ const formatPrice = (price) =>
     border: none;
     font-size: 24px;
     cursor: pointer;
+    line-height: 1;
+    color: #666;
+  }
+
+  #btn_close_cart:hover {
+    color: #111;
   }
 
   .cart-products {
-    padding: 16px;
+    padding: 12px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: 300px;
+    gap: 8px;
+    max-height: 320px;
     overflow-y: auto;
   }
 
-  .cart-product,
+  .cart-empty-msg {
+    text-align: center;
+    color: #888;
+    padding: 24px 10px;
+  }
+
+  .cart-empty-msg p {
+    margin: 0 0 4px 0;
+  }
+
   .cart-total {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 1.05rem;
   }
 
   #header_carrito footer {
-    padding: 16px;
+    padding: 16px 20px;
     border-top: 1px solid #eee;
-  }
-
-  .cart-total {
-    margin-bottom: 16px;
+    background: #fafafa;
   }
 
   .checkout-btn {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 6px;
-    background: #222;
+    border-radius: 8px;
+    background: #b12715;
     color: white;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .checkout-btn:hover {
+    background: #d8a61d;
+    color: #111;
   }
 
   @media (max-width: 768px) {
