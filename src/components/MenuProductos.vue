@@ -76,12 +76,6 @@ function agregarDirectoAlCarrito(e, plato) {
     );
   }
 }
-
-function handleImageError(e, plato) {
-  if (plato && plato.fallbackImagen) {
-    e.target.src = plato.fallbackImagen;
-  }
-}
 </script>
 
 <template>
@@ -147,7 +141,6 @@ function handleImageError(e, plato) {
             :alt="producto.nombre"
             class="producto-img"
             loading="lazy"
-            @error="(e) => handleImageError(e, producto)"
           />
           <span v-if="producto.badge" class="producto-badge">
             {{ producto.badge }}

@@ -37,12 +37,6 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown);
 });
 
-function handleImageError(e) {
-  if (props.producto && props.producto.fallbackImagen) {
-    e.target.src = props.producto.fallbackImagen;
-  }
-}
-
 function agregarAlPedido() {
   agregado.value = true;
   emit('ordenar', { producto: props.producto, cantidad: cantidad.value });
@@ -96,7 +90,6 @@ function agregarAlPedido() {
                 :src="producto.imagen"
                 :alt="producto.nombre"
                 class="modal-imagen"
-                @error="handleImageError"
               />
               <span v-if="producto.badge" class="modal-badge-flotante">
                 {{ producto.badge }}
