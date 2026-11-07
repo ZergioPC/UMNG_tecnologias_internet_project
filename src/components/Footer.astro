@@ -6,28 +6,45 @@ import logo from "@/assets/img/logo.png";
 <footer class="well footer-main">
     <div class="container">
         <div class="row">
-            <div class="col-sm-6 col-md-3">
+            <div class="col-sm-6 col-md-3 footer-brand">
+                <h4 class="section-title-sm">Los chinos hermanos</h4>
                 <img src={logo.src} alt="Logo Los Chinos Hermanos" class="footer-logo">
-                <p class="footer-brand-text">Los Chinos Hermanos</p>
+                
             </div>
             <div class="col-sm-6 col-md-3">
                 <h4 class="section-title-sm">MENU</h4>
-                <p><a href="#NUESTRO MENU">NUESTRO MENU</a></p>
-                <p><a href="#PLATOS PRINCIPALES">PLATOS PRINCIPALES</a></p>
-                <p><a href="#RECOMENDADOS">RECOMENDADOS</a></p>
+                <p><a href="#menu">Menú</a></p>
+                <p><a href="#categorias">Platos principales</a></p>
+                <p><a href="#recomendados">Recomendados</a></p>
+                <p><a href="#precios">Precios</a></p>
+                <p><a href="#contacto">Reservas y contacto</a></p>
             </div>
             <div class="col-sm-6 col-md-3">
                 <h4 class="section-title-sm">CONTACTO</h4>
-                <p>Dato 1</p>
-                <p>Dato 2</p>
-                <p>Dato 3</p>
+                <p>Cra. 33 No. 8-94, Villa María</p>
+                <p><a href="tel:+570000000000">+57 000 000 0000</a></p>
+                <p><a href="mailto:Loschinoshermanos@gmail.com">Loschinoshermanos@gmail.com</a></p>
             </div>
             <div class="col-sm-6 col-md-3">
                 <h4 class="section-title-sm">SIGUENOS</h4>
                 <div>
-                    <span class="footer-social-icon">X</span>
-                    <span class="footer-social-icon">X</span>
-                    <span class="footer-social-icon">X</span>
+                    <a href="https://instagram.com/tu_usuario" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                        </svg>
+                    </a>
+                    <a href="https://facebook.com/tu_pagina" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                        </svg>
+                    </a>
+                    <a href="https://wa.me/570000000000" class="footer-social-icon" aria-label="WhatsApp" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
@@ -37,57 +54,139 @@ import logo from "@/assets/img/logo.png";
     </div>
 </footer>
 
-
 <style>
-.section-title-sm {
-  border-bottom: 2px solid #333;
-  padding-bottom: 6px;
-  text-transform: uppercase;
-  display: inline-block;
-}
-
 .footer-main {
   margin-bottom: 0;
   border-radius: 0;
-  border-top: 1px solid #ddd;
-  background-color: #f8f9fa;
+  border: none;
+  box-shadow: none;
+  background-color: #9c2212;
+  color: #fff;
+  padding-top: 40px;
+  padding-bottom: 20px;
+}
+.footer-main .row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.footer-main .row::before,
+.footer-main .row::after {
+  display: none;
+}
+
+.footer-main .row > div {
+  float: none;
+  width: auto;
+}
+
+.footer-brand {
+  text-align: center;
+}
+
+.section-title-sm {
+  border-bottom: 2px solid #fff;
+  padding-bottom: 6px;
+  text-transform: uppercase;
+  display: inline-block;
+  color: #fff;
 }
 
 .footer-logo {
-  max-height: 50px;
-  margin-bottom: 10px;
+  display: block;
+  height: 120px;
+  width: auto;
+  max-width: 100%;
+  margin: 15px auto 0;
 }
 
 .footer-brand-text {
   font-weight: bold;
+  font-size: 1.1rem;
+  color: #fff;
+  border: none;
+  text-transform: none;
+  margin: 0;
 }
 
-.footer-bottom {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #ddd;
-  text-align: center;
+.footer-main p {
+  color: #fff;
 }
 
-.footer-copyright {
-  font-size: 13px;
-  color: #666;
+.footer-main a:not(.footer-social-icon) {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer-main a:not(.footer-social-icon):hover {
+  text-decoration: underline;
 }
 
 .footer-social-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 1px solid #ccc;
+  border: 2px solid #fff;
   background-color: #fff;
-  font-weight: bold;
-  margin-right: 5px;
+  color: #9c2212;
+  margin-right: 8px;
+  transition: all 0.2s ease;
+}
+
+.section-title-sm + div {
+  margin-top: 15px;
+}
+.footer-social-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .footer-social-icon:hover {
-  background-color: #e9ecef;
+  background-color: #701609;
+  border-color: #fff;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  text-align: center;
+}
+
+.footer-copyright {
+  font-size: 13px;
+  color: #fff;
+  margin: 0;
+}
+
+/* Responsive: tablets y celulares */
+/* Tablets y celulares */
+@media (max-width: 991px) {
+  .footer-main {
+    text-align: center;
+    padding-top: 30px;
+  }
+
+  .footer-main .row {
+    justify-content: center;
+    gap: 30px 60px;
+  }
+}
+
+/* Celulares */
+@media (max-width: 767px) {
+  .footer-logo {
+    height: 90px;
+  }
+
+  .footer-social-icon {
+    margin: 0 4px;
+  }
 }
 </style>
