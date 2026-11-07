@@ -1,0 +1,9 @@
+---
+const { etiqueta, valor, detalle = "", tono = "default" } = Astro.props;
+---
+
+<article class:list={["stat-card", `stat-card--${tono}`]}>
+  <span class="stat-card__label">{etiqueta}</span>
+  <strong class="stat-card__value">{valor}</strong>
+  {detalle && <span class="stat-card__detail">{detalle}</span>}
+</article>

@@ -1,0 +1,278 @@
+---
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import BadgeEstado from "@/components/dashboard/BadgeEstado.astro";
+import {
+  ESTADOS,
+  obtenerPedidos,
+} from "@/lib/dashboard.js";
+import { formatCOP } from "@/lib/pasarela.js";
+
+const parametros = Astro.url.searchParams;
+
+const estado = (parametros.get("estado") ?? "todos").trim();
+const busqueda = (parametros.get("q") ?? "").trim();
+const desde = (parametros.get("desde") ?? "").trim();
+const hasta = (parametros.get("hasta") ?? "").trim();
+const pagina = Number(parametros.get("pagina")) || 1;
+
+const resultado = obtenerPedidos({
+  estado,
+  busqueda,
+  desde,
+  hasta,
+  pagina,
+  porPagina: 10,
+});
+
+const tieneFiltros =
+  (estado && estado !== "todos") || busqueda || desde || hasta;
+
+const estadosDisponibles = Object.entries(ESTADOS);
+
+function urlPagina(numero) {
+  const query = new URLSearchParams();
+
+  if (estado && estado !== "todos") query.set("estado", estado);
+  if (busqueda) query.set("q", busqueda);
+  if (desde) query.set("desde", desde);
+  if (hasta) query.set("hasta", hasta);
+  if (numero > 1) query.set("pagina", String(numero));
+
+  const cadena = query.toString();
+  return `/dashboard/pedidos${cadena ? `?${cadena}` : ""}`;
+}
+---
+
+<DashboardLayout
+  titulo="Pedidos"
+  activo="pedidos"
+  descripcion="Historial de pedidos registrados en la tienda"
+>
+  <form class="filters" method="get" action="/dashboard/pedidos">
+    <div class="filters__field filters__field--grow">
+      <label for="q">Buscar</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        placeholder="Referencia, cliente o correo"
+        value={busqueda}
+        maxlength="80"
+      />
+    </div>
+
+    <div class="filters__field">
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado">
+        <option value="todos" selected={estado === "todos"}>Todos</option>
+        {
+          estadosDisponibles.map(([valor, info]) => (
+            <option value={valor} selected={estado === valor}>
+              {info.etiqueta}
+            </option>
+          ))
+        }
+      </select>
+    </div>
+
+    <div class="filters__field">
+      <label for="desde">Desde</label>
+      <input id="desde" name="desde" type="date" value={desde} />
+    </div>
+
+    <div class="filters__field">
+      <label for="hasta">Hasta</label>
+      <input id="hasta" name="hasta" type="date" value={hasta} />
+    </div>
+
+    <div class="filters__actions">
+      <button class="btn btn--primary" type="submit">Filtrar</button>
+      {
+        tieneFiltros && (
+          <a class="btn btn--ghost" href="/dashboard/pedidos">Limpiar</a>
+        )
+      }
+    </div>
+  </form>
+
+  <div class="results-meta">
+    <span>
+      <strong>{resultado.total}</strong>
+      {resultado.total === 1 ? " pedido encontrado" : " pedidos encontrados"}
+    </span>
+    {
+      resultado.totalPaginas > 1 && (
+        <span>
+          · Página {resultado.pagina} de {resultado.totalPaginas}
+        </span>
+      )
+    }
+  </div>
+
+  {
+    resultado.pedidos.length > 0 ? (
+      <section class="order-list" aria-label="Listado de pedidos">
+        {resultado.pedidos.map((pedido) => (
+          <details class="order-card">
+            <summary class="order-summary">
+              <span class="order-ref-wrap">
+                <span class="order-ref">{pedido.referencia}</span>
+                <span class="order-date">{pedido.fechaTexto}</span>
+              </span>
+
+              <span class="order-client">
+                <strong>{pedido.nombre}</strong>
+                <span>{pedido.correo}</span>
+              </span>
+
+              <span class="order-city">{pedido.ciudad || "—"}</span>
+              <span class="order-total">{formatCOP(pedido.total)}</span>
+              <BadgeEstado estado={pedido.estado} />
+              <span class="order-chevron" aria-hidden="true" />
+            </summary>
+
+            <div class="order-body">
+              <div>
+                <table class="order-items-table">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cant.</th>
+                      <th>Precio</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pedido.items.map((item) => (
+                      <tr>
+                        <td>{item.nombre}</td>
+                        <td>{item.cantidad}</td>
+                        <td>{formatCOP(item.precio)}</td>
+                        <td>{formatCOP(item.precio * item.cantidad)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <dl class="order-totals">
+                  <div>
+                    <dt>Subtotal</dt>
+                    <dd>{formatCOP(pedido.subtotal)}</dd>
+                  </div>
+                  <div>
+                    <dt>Envío</dt>
+                    <dd>{formatCOP(pedido.envio)}</dd>
+                  </div>
+                  <div class="order-totals__final">
+                    <dt>Total</dt>
+                    <dd>{formatCOP(pedido.total)}</dd>
+                  </div>
+                  {pedido.efectivoCon !== null && (
+                    <div>
+                      <dt>Efectivo con</dt>
+                      <dd>{formatCOP(pedido.efectivoCon)}</dd>
+                    </div>
+                  )}
+                  {pedido.cambio !== null && (
+                    <div>
+                      <dt>Cambio</dt>
+                      <dd>{formatCOP(pedido.cambio)}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+
+              <dl class="order-info">
+                <dt>Teléfono</dt>
+                <dd>{pedido.telefono}</dd>
+                <dt>Dirección</dt>
+                <dd>{pedido.direccion}</dd>
+                <dt>Ciudad</dt>
+                <dd>{pedido.ciudad || "—"}</dd>
+                <dt>Método</dt>
+                <dd>
+                  {pedido.metodo === "contra_entrega"
+                    ? "Contra entrega"
+                    : pedido.metodo}
+                </dd>
+                <dt>Estado</dt>
+                <dd>
+                  <BadgeEstado estado={pedido.estado} />
+                </dd>
+                {pedido.notas && (
+                  <dd class="order-note">
+                    <strong>Notas:</strong> {pedido.notas}
+                  </dd>
+                )}
+              </dl>
+            </div>
+          </details>
+        ))}
+      </section>
+    ) : (
+      <div class="card">
+        <div class="empty">
+          <span class="empty__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 3h12a1 1 0 0 1 1 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 0 1 1-1Z" />
+              <path d="M9 8h6M9 12h6M9 16h3" />
+            </svg>
+          </span>
+          <strong>No hay pedidos que coincidan</strong>
+          <p>
+            {tieneFiltros
+              ? "Prueba con otro estado, otra búsqueda o un rango de fechas más amplio."
+              : "Los pedidos registrados en la pasarela de pagos aparecerán aquí."}
+          </p>
+          {tieneFiltros && (
+            <a class="btn btn--ghost" href="/dashboard/pedidos">
+              Quitar filtros
+            </a>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  {
+    resultado.totalPaginas > 1 && (
+      <nav class="pagination" aria-label="Paginación de pedidos">
+        <span class="pagination__info">
+          Mostrando {resultado.pedidos.length} de {resultado.total} pedidos
+        </span>
+        <span class="pagination__links">
+          <a
+            class:list={[
+              "pagination__link",
+              { "pagination__link--disabled": resultado.pagina === 1 },
+            ]}
+            href={urlPagina(resultado.pagina - 1)}
+            aria-disabled={resultado.pagina === 1 ? "true" : undefined}
+          >
+            ← Anterior
+          </a>
+          <span class="pagination__info">
+            {resultado.pagina} / {resultado.totalPaginas}
+          </span>
+          <a
+            class:list={[
+              "pagination__link",
+              {
+                "pagination__link--disabled":
+                  resultado.pagina === resultado.totalPaginas,
+              },
+            ]}
+            href={urlPagina(resultado.pagina + 1)}
+            aria-disabled={
+              resultado.pagina === resultado.totalPaginas
+                ? "true"
+                : undefined
+            }
+          >
+            Siguiente →
+          </a>
+        </span>
+      </nav>
+    )
+  }
+</DashboardLayout>

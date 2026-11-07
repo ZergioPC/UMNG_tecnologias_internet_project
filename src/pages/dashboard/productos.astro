@@ -1,0 +1,107 @@
+---
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import StatCard from "@/components/dashboard/StatCard.astro";
+import { CATEGORIAS, PRODUCTOS } from "@/data/productos.js";
+import { obtenerVentasPorProducto } from "@/lib/dashboard.js";
+import { formatCOP } from "@/lib/pasarela.js";
+
+const ventas = obtenerVentasPorProducto();
+const ventasPorId = new Map(ventas.map((venta) => [venta.id, venta]));
+const nombresCategoria = new Map(
+  CATEGORIAS.map((categoria) => [categoria.id, categoria.nombre])
+);
+
+const productos = PRODUCTOS.map((producto) => {
+  const venta = ventasPorId.get(producto.id);
+  return {
+    ...producto,
+    unidades: venta?.cantidad ?? 0,
+    ingresos: venta?.ingresos ?? 0,
+  };
+});
+
+const masVendidoId = ventas[0]?.cantidad > 0 ? ventas[0].id : null;
+const totalUnidades = ventas.reduce((total, venta) => total + venta.cantidad, 0);
+const totalIngresos = ventas.reduce((total, venta) => total + venta.ingresos, 0);
+const productosConVentas = ventas.filter((venta) => venta.cantidad > 0).length;
+---
+
+<DashboardLayout
+  titulo="Productos"
+  activo="productos"
+  descripcion="Catálogo del menú y su desempeño en pedidos"
+>
+  <section class="kpi-grid kpi-grid--3" aria-label="Resumen de productos">
+    <StatCard
+      etiqueta="Unidades vendidas"
+      valor={totalUnidades}
+      detalle="En pedidos no cancelados"
+      tono="primary"
+    />
+    <StatCard
+      etiqueta="Ingresos por productos"
+      valor={formatCOP(totalIngresos)}
+      detalle="Sin incluir el envío"
+    />
+    <StatCard
+      etiqueta="Productos con ventas"
+      valor={`${productosConVentas} de ${PRODUCTOS.length}`}
+      detalle="Del catálogo actual"
+    />
+  </section>
+
+  <p class="dash-note">
+    <span aria-hidden="true">ⓘ</span>
+    <span>
+      Las cifras se calculan a partir del contenido de los pedidos registrados
+      y excluyen los pedidos cancelados. El catálogo es de solo lectura.
+    </span>
+  </p>
+
+  <section class="product-grid" aria-label="Catálogo de productos">
+    {
+      productos.map((producto) => (
+        <article
+          class:list={[
+            "product-card",
+            { "product-card--sin-ventas": producto.unidades === 0 },
+          ]}
+        >
+          <div class="product-card__media">
+            <img
+              src={producto.imagen}
+              alt={producto.nombre}
+              loading="lazy"
+              width="320"
+              height="200"
+            />
+            <span class="product-card__cat">
+              {nombresCategoria.get(producto.categoria) ?? producto.categoria}
+            </span>
+            {producto.id === masVendidoId && (
+              <span class="product-card__top">Más vendido</span>
+            )}
+          </div>
+
+          <div class="product-card__body">
+            <h2 class="product-card__name">{producto.nombre}</h2>
+            <p class="product-card__price">
+              {formatCOP(producto.precio)}
+            </p>
+
+            <div class="product-card__stats">
+              <span>
+                Vendidas
+                <strong>{producto.unidades}</strong>
+              </span>
+              <span style="text-align: right;">
+                Ingresos
+                <strong>{formatCOP(producto.ingresos)}</strong>
+              </span>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </section>
+</DashboardLayout>

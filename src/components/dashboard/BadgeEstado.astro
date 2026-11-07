@@ -1,0 +1,8 @@
+---
+import { infoEstado } from "@/lib/dashboard.js";
+
+const { estado } = Astro.props;
+const info = infoEstado(estado);
+---
+
+<span class:list={["badge", `badge--${info.clase}`]}>{info.etiqueta}</span>
