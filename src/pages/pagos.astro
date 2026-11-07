@@ -2,12 +2,64 @@
 import Footer from '@/components/Footer.astro';
 import Layout from '../layouts/Layout.astro';
 import Header from '@/components/Header.astro';
+import PasarelaPago from '@/components/PasarelaPago.vue';
 ---
 
-<Layout title="Formulario de Pagos">
+<Layout title="Pasarela de Pagos">
   <Header />
-  
-  <h1>Realiza tu Pago</h1>
+
+  <main class="pagos-page">
+    <PasarelaPago client:only="vue">
+      <div slot="fallback" class="pagos-cargando">
+        Cargando pasarela de pagos…
+      </div>
+    </PasarelaPago>
+  </main>
 
   <Footer />
 </Layout>
+
+<style>
+  .pagos-page {
+    min-height: 60vh;
+    background: #f9fafb;
+  }
+</style>
+
+<style is:global>
+  .pagos-cargando {
+    max-width: 1140px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+    color: #6b7280;
+    text-align: center;
+  }
+
+  @media print {
+    #header,
+    #header-burger,
+    footer,
+    .pago-no-print {
+      display: none !important;
+    }
+
+    .pagos-page {
+      background: #ffffff !important;
+      min-height: auto !important;
+    }
+
+    .pasarela {
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .recibo {
+      box-shadow: none !important;
+      border: none !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
+</style>

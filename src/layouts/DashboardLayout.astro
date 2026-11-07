@@ -1,0 +1,107 @@
+---
+import "@/css/dashboard.css";
+
+import Sidebar from "@/components/dashboard/Sidebar.astro";
+import logo from "@/assets/img/logo.png";
+
+const {
+  titulo = "Panel",
+  activo = "resumen",
+  descripcion = "",
+} = Astro.props;
+
+const hoy = new Intl.DateTimeFormat("es-CO", {
+  dateStyle: "long",
+}).format(new Date());
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content="Panel administrativo de Los Chinos Hermanos: resumen de ventas, pedidos, mensajes y productos."
+    />
+    <link rel="icon" href={logo.src} />
+    <title>{titulo} · Panel | Los Chinos Hermanos</title>
+  </head>
+  <body>
+    <div class="dash">
+      <Sidebar activo={activo} />
+
+      <div class="dash-main">
+        <header class="dash-topbar">
+          <button
+            id="dash-burger"
+            class="dash-burger"
+            type="button"
+            aria-label="Abrir menú del panel"
+            aria-expanded="false"
+            aria-controls="dash-sidebar"
+          >
+            <span></span>
+          </button>
+
+          <div>
+            <h1 class="dash-topbar-title">{titulo}</h1>
+            <p class="dash-topbar-date">
+              {descripcion || hoy}
+            </p>
+          </div>
+
+          <div class="dash-topbar-actions">
+            <span class="dash-pill">Solo lectura</span>
+            <a class="dash-link-tienda" href="/">Ver tienda</a>
+          </div>
+        </header>
+
+        <main class="dash-content">
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const sidebar = document.getElementById("dash-sidebar");
+      const overlay = document.getElementById("dash-overlay");
+      const burger = document.getElementById("dash-burger");
+
+      function abrirMenu() {
+        sidebar?.classList.add("abierto");
+        overlay?.classList.add("visible");
+        document.body.classList.add("dash-menu-abierto");
+        burger?.setAttribute("aria-expanded", "true");
+        burger?.setAttribute("aria-label", "Cerrar menú del panel");
+      }
+
+      function cerrarMenu() {
+        sidebar?.classList.remove("abierto");
+        overlay?.classList.remove("visible");
+        document.body.classList.remove("dash-menu-abierto");
+        burger?.setAttribute("aria-expanded", "false");
+        burger?.setAttribute("aria-label", "Abrir menú del panel");
+      }
+
+      burger?.addEventListener("click", () => {
+        if (sidebar?.classList.contains("abierto")) {
+          cerrarMenu();
+        } else {
+          abrirMenu();
+        }
+      });
+
+      overlay?.addEventListener("click", cerrarMenu);
+
+      document.addEventListener("keydown", (evento) => {
+        if (evento.key === "Escape") cerrarMenu();
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 900) cerrarMenu();
+      });
+    </script>
+  </body>
+</html>

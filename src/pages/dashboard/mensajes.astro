@@ -1,0 +1,161 @@
+---
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import {
+  formatearFechaHora,
+  obtenerMensajes,
+} from "@/lib/dashboard.js";
+
+const parametros = Astro.url.searchParams;
+const busqueda = (parametros.get("q") ?? "").trim();
+const pagina = Number(parametros.get("pagina")) || 1;
+
+const resultado = obtenerMensajes({ busqueda, pagina, porPagina: 10 });
+
+function urlPagina(numero) {
+  const query = new URLSearchParams();
+
+  if (busqueda) query.set("q", busqueda);
+  if (numero > 1) query.set("pagina", String(numero));
+
+  const cadena = query.toString();
+  return `/dashboard/mensajes${cadena ? `?${cadena}` : ""}`;
+}
+---
+
+<DashboardLayout
+  titulo="Mensajes"
+  activo="mensajes"
+  descripcion="Mensajes recibidos desde el formulario de contacto"
+>
+  <form class="filters" method="get" action="/dashboard/mensajes">
+    <div class="filters__field filters__field--grow">
+      <label for="q">Buscar</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        placeholder="Nombre, correo o contenido del mensaje"
+        value={busqueda}
+        maxlength="80"
+      />
+    </div>
+
+    <div class="filters__actions">
+      <button class="btn btn--primary" type="submit">Buscar</button>
+      {
+        busqueda && (
+          <a class="btn btn--ghost" href="/dashboard/mensajes">
+            Limpiar
+          </a>
+        )
+      }
+    </div>
+  </form>
+
+  <div class="results-meta">
+    <span>
+      <strong>{resultado.total}</strong>
+      {resultado.total === 1 ? " mensaje" : " mensajes"}
+    </span>
+    {
+      resultado.totalPaginas > 1 && (
+        <span>
+          · Página {resultado.pagina} de {resultado.totalPaginas}
+        </span>
+      )
+    }
+  </div>
+
+  {
+    resultado.mensajes.length > 0 ? (
+      <section class="message-list" aria-label="Mensajes de contacto">
+        {resultado.mensajes.map((mensaje) => (
+          <article class="message-card">
+            <header class="message-card__header">
+              <h2 class="message-card__name">{mensaje.nombre}</h2>
+              <a
+                class="message-card__mail"
+                href={`mailto:${mensaje.correo}`}
+              >
+                {mensaje.correo}
+              </a>
+              <time
+                class="message-card__date"
+                datetime={mensaje.fecha}
+              >
+                {formatearFechaHora(mensaje.fecha)}
+              </time>
+            </header>
+            <p class="message-card__body">
+              {mensaje.mensaje || "Sin contenido."}
+            </p>
+          </article>
+        ))}
+      </section>
+    ) : (
+      <div class="card">
+        <div class="empty">
+          <span class="empty__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="m3.5 6.5 8.5 6 8.5-6" />
+            </svg>
+          </span>
+          <strong>No hay mensajes</strong>
+          <p>
+            {busqueda
+              ? "Ningún mensaje coincide con la búsqueda."
+              : "Los mensajes enviados desde el formulario de contacto aparecerán aquí."}
+          </p>
+          {busqueda && (
+            <a class="btn btn--ghost" href="/dashboard/mensajes">
+              Quitar búsqueda
+            </a>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  {
+    resultado.totalPaginas > 1 && (
+      <nav class="pagination" aria-label="Paginación de mensajes">
+        <span class="pagination__info">
+          Mostrando {resultado.mensajes.length} de {resultado.total} mensajes
+        </span>
+        <span class="pagination__links">
+          <a
+            class:list={[
+              "pagination__link",
+              { "pagination__link--disabled": resultado.pagina === 1 },
+            ]}
+            href={urlPagina(resultado.pagina - 1)}
+            aria-disabled={resultado.pagina === 1 ? "true" : undefined}
+          >
+            ← Anterior
+          </a>
+          <span class="pagination__info">
+            {resultado.pagina} / {resultado.totalPaginas}
+          </span>
+          <a
+            class:list={[
+              "pagination__link",
+              {
+                "pagination__link--disabled":
+                  resultado.pagina === resultado.totalPaginas,
+              },
+            ]}
+            href={urlPagina(resultado.pagina + 1)}
+            aria-disabled={
+              resultado.pagina === resultado.totalPaginas
+                ? "true"
+                : undefined
+            }
+          >
+            Siguiente →
+          </a>
+        </span>
+      </nav>
+    )
+  }
+</DashboardLayout>

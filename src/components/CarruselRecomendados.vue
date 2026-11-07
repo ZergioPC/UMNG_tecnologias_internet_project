@@ -385,6 +385,7 @@ function agregarDirectoAlCarrito(e, plato) {
   line-height: 1.45;
   margin-bottom: 1.25rem;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;

@@ -165,6 +165,7 @@ const formatPrice = (price: number) =>
       }
       saveCart(cart);
       renderCart();
+      window.dispatchEvent(new CustomEvent("cart:updated"));
     }
   }
 
@@ -193,6 +194,7 @@ const formatPrice = (price: number) =>
 
     saveCart(cart);
     renderCart();
+    window.dispatchEvent(new CustomEvent("cart:updated"));
 
     // Abrir brevemente el carrito para dar confirmación visual
     toggleCart(true);
@@ -243,6 +245,15 @@ const formatPrice = (price: number) =>
 
   // Inicializar al cargar
   renderCart();
+
+  // Mantener el carrito sincronizado con otras vistas (por ejemplo /pagos)
+  window.addEventListener("cart:updated", renderCart);
+
+  window.addEventListener("storage", (event) => {
+    if (!event.key || event.key === STORAGE_KEY) {
+      renderCart();
+    }
+  });
 </script>
 
 <style>
