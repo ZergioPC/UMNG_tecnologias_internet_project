@@ -48,4 +48,27 @@ db.exec(`
   )
 `);
 
+// TABLA PAGOS (pedidos con pago contra entrega)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS pagos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    referencia TEXT NOT NULL UNIQUE,
+    nombre TEXT NOT NULL,
+    correo TEXT NOT NULL,
+    telefono TEXT NOT NULL,
+    direccion TEXT NOT NULL,
+    ciudad TEXT,
+    notas TEXT,
+    items TEXT NOT NULL,
+    subtotal INTEGER NOT NULL,
+    envio INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    metodo TEXT NOT NULL DEFAULT 'contra_entrega',
+    estado TEXT NOT NULL DEFAULT 'pendiente',
+    efectivo_con INTEGER,
+    cambio INTEGER,
+    fecha TEXT NOT NULL
+  )
+`);
+
 export default db;
