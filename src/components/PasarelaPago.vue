@@ -42,20 +42,22 @@ function crearFormularioVacio() {
     direccion: '',
     ciudad: '',
     notas: '',
-    efectivoCon: '',
+    propina: '',
   };
 }
 
 const totales = computed(() => calcularTotales(items.value));
 
-const cambioEstimado = computed(() => {
-  if (formulario.value.efectivoCon === '') return null;
+const propina = computed(() => {
+  if (formulario.value.propina === '') return 0;
 
-  const valor = Number(formulario.value.efectivoCon);
-  if (!Number.isFinite(valor) || valor < totales.value.total) return null;
-
-  return valor - totales.value.total;
+  const valor = Number(formulario.value.propina);
+  return Number.isSafeInteger(valor) && valor >= 0 ? valor : 0;
 });
+
+const totalConPropina = computed(
+  () => totales.value.total + propina.value
+);
 
 function leerCarrito() {
   if (typeof window === 'undefined') return [];
@@ -147,13 +149,12 @@ function validarEntrega() {
     nuevos.ciudad = 'Indica la ciudad o barrio.';
   }
 
-  if (datos.efectivoCon !== '' && datos.efectivoCon !== null) {
-    const valor = Number(datos.efectivoCon);
+  if (datos.propina !== '' && datos.propina !== null) {
+    const valor = Number(datos.propina);
 
-    if (!Number.isInteger(valor) || valor < totales.value.total) {
-      nuevos.efectivoCon = `Debe ser igual o mayor a ${formatCOP(
-        totales.value.total
-      )}.`;
+    if (!Number.isSafeInteger(valor) || valor < 0) {
+      nuevos.propina =
+        'La propina debe ser un número entero igual o mayor a 0.';
     }
   }
 
@@ -221,10 +222,10 @@ async function confirmarPedido() {
           id: item.id,
           cantidad: item.cantidad,
         })),
-        efectivoCon:
-          formularioSnapshot.efectivoCon === ''
+        propina:
+          formularioSnapshot.propina === ''
             ? null
-            : Number(formularioSnapshot.efectivoCon),
+            : Number(formularioSnapshot.propina),
         metodo: 'contra_entrega',
       }),
     });
@@ -529,40 +530,38 @@ onUnmounted(() => {
                 </div>
 
                 <div class="pago-field">
-                  <label for="pago-efectivo">
-                    ¿Con cuánto pagas?
+                  <label for="pago-propina">
+                    Propina
                     <span class="pago-opcional">(opcional)</span>
                   </label>
                   <input
-                    id="pago-efectivo"
-                    v-model="formulario.efectivoCon"
+                    id="pago-propina"
+                    v-model="formulario.propina"
                     type="number"
                     class="pago-input"
-                    :class="{ 'pago-input-error': errores.efectivoCon }"
+                    :class="{ 'pago-input-error': errores.propina }"
                     inputmode="numeric"
                     min="0"
                     step="1000"
-                    placeholder="Ej. 50000"
-                    :aria-invalid="
-                      errores.efectivoCon ? 'true' : 'false'
-                    "
+                    placeholder="Ej. 5000"
+                    :aria-invalid="errores.propina ? 'true' : 'false'"
                     :aria-describedby="
-                      errores.efectivoCon
-                        ? 'error-pago-efectivo'
-                        : 'hint-pago-efectivo'
+                      errores.propina
+                        ? 'error-pago-propina'
+                        : 'hint-pago-propina'
                     "
-                    @input="limpiarError('efectivoCon')"
+                    @input="limpiarError('propina')"
                   />
                   <p
-                    v-if="errores.efectivoCon"
-                    id="error-pago-efectivo"
+                    v-if="errores.propina"
+                    id="error-pago-propina"
                     class="pago-error"
                     role="alert"
                   >
-                    {{ errores.efectivoCon }}
+                    {{ errores.propina }}
                   </p>
-                  <p v-else id="hint-pago-efectivo" class="pago-hint">
-                    Si pagas con un billete, calculamos tu cambio.
+                  <p v-else id="hint-pago-propina" class="pago-hint">
+                    Si quieres, deja una propina para quien entrega tu pedido.
                   </p>
                 </div>
 
@@ -633,15 +632,13 @@ onUnmounted(() => {
                     <span>Notas</span>
                     <strong>{{ formulario.notas }}</strong>
                   </li>
-                  <li v-if="formulario.efectivoCon">
-                    <span>Pagas con</span>
-                    <strong>
-                      {{ formatCOP(formulario.efectivoCon) }}
-                    </strong>
+                  <li v-if="propina > 0">
+                    <span>Propina</span>
+                    <strong>{{ formatCOP(propina) }}</strong>
                   </li>
-                  <li v-if="cambioEstimado !== null">
-                    <span>Cambio estimado</span>
-                    <strong>{{ formatCOP(cambioEstimado) }}</strong>
+                  <li v-if="propina > 0">
+                    <span>Total con propina</span>
+                    <strong>{{ formatCOP(totalConPropina) }}</strong>
                   </li>
                 </ul>
               </div>
@@ -673,7 +670,7 @@ onUnmounted(() => {
                   :disabled="!acepta || procesando"
                   @click="confirmarPedido"
                 >
-                  Confirmar pedido · {{ formatCOP(totales.total) }}
+                  Confirmar pedido · {{ formatCOP(totalConPropina) }}
                 </button>
               </div>
           </div>

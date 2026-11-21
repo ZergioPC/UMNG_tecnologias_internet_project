@@ -167,16 +167,10 @@ function urlPagina(numero) {
                     <dt>Total</dt>
                     <dd>{formatCOP(pedido.total)}</dd>
                   </div>
-                  {pedido.efectivoCon !== null && (
+                  {pedido.propina !== null && pedido.propina > 0 && (
                     <div>
-                      <dt>Efectivo con</dt>
-                      <dd>{formatCOP(pedido.efectivoCon)}</dd>
-                    </div>
-                  )}
-                  {pedido.cambio !== null && (
-                    <div>
-                      <dt>Cambio</dt>
-                      <dd>{formatCOP(pedido.cambio)}</dd>
+                      <dt>Propina</dt>
+                      <dd>{formatCOP(pedido.propina)}</dd>
                     </div>
                   )}
                 </dl>

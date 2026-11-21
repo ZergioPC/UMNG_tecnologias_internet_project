@@ -26,6 +26,8 @@ const subtotal = computed(() => {
 
 const envio = computed(() => Number(props.recibo?.envio) || 0);
 const total = computed(() => Number(props.recibo?.total) || 0);
+const propina = computed(() => Number(props.recibo?.propina) || 0);
+const totalConPropina = computed(() => total.value + propina.value);
 
 const fechaFormateada = computed(() => {
   const fecha = props.recibo?.fecha;
@@ -90,11 +92,8 @@ function imprimir() {
         <h3>Forma de pago</h3>
         <p><strong>Contra entrega</strong></p>
         <p>Pagas en efectivo al recibir tu pedido.</p>
-        <p v-if="recibo.efectivoCon">
-          <strong>Pagas con:</strong> {{ formatCOP(recibo.efectivoCon) }}
-        </p>
-        <p v-if="recibo.cambio !== null && recibo.cambio !== undefined">
-          <strong>Cambio estimado:</strong> {{ formatCOP(recibo.cambio) }}
+        <p v-if="propina > 0">
+          <strong>Propina:</strong> {{ formatCOP(propina) }}
         </p>
       </section>
     </div>
@@ -119,9 +118,13 @@ function imprimir() {
         <span>Envío domicilio</span>
         <span>{{ formatCOP(envio) }}</span>
       </div>
+      <div v-if="propina > 0">
+        <span>Propina</span>
+        <span>{{ formatCOP(propina) }}</span>
+      </div>
       <div class="total">
         <span>Total a pagar al recibir</span>
-        <span>{{ formatCOP(total) }}</span>
+        <span>{{ formatCOP(totalConPropina) }}</span>
       </div>
     </div>
 

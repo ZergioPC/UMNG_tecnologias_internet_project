@@ -3,7 +3,6 @@ import db from '../../lib/database.js';
 import { PRODUCTOS } from '../../data/productos.js';
 import {
   ENVIO_FIJO,
-  formatCOP,
   validarCorreo,
   validarTelefono,
 } from '../../lib/pasarela.js';
@@ -11,9 +10,9 @@ import {
 const insertarPago = db.prepare(`
   INSERT INTO pagos (
     referencia, nombre, correo, telefono, direccion, ciudad, notas,
-    items, subtotal, envio, total, metodo, estado, efectivo_con, cambio, fecha
+    items, subtotal, envio, total, metodo, estado, propina, fecha
   )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 function respuestaJSON(cuerpo, estado = 200) {
@@ -202,28 +201,26 @@ export async function POST({ request }) {
     const envio = ENVIO_FIJO;
     const total = subtotal + envio;
 
-    let efectivoCon = null;
-    let cambio = null;
-    const efectivoCrudo = datos.efectivoCon;
+    let propina = null;
+    const propinaCruda = datos.propina;
 
     if (
-      efectivoCrudo !== undefined &&
-      efectivoCrudo !== null &&
-      efectivoCrudo !== ''
+      propinaCruda !== undefined &&
+      propinaCruda !== null &&
+      propinaCruda !== ''
     ) {
-      const valor = Number(efectivoCrudo);
+      const valor = Number(propinaCruda);
 
-      if (!Number.isSafeInteger(valor) || valor < total) {
+      if (!Number.isSafeInteger(valor) || valor < 0) {
         return respuestaJSON(
           {
-            error: `El efectivo debe ser un valor entero igual o mayor al total (${formatCOP(total)})`,
+            error: 'La propina debe ser un valor entero igual o mayor a 0',
           },
           400
         );
       }
 
-      efectivoCon = valor;
-      cambio = valor - total;
+      propina = valor;
     }
 
     const fecha = new Date().toISOString();
@@ -243,8 +240,7 @@ export async function POST({ request }) {
       total,
       'contra_entrega',
       'pendiente',
-      efectivoCon,
-      cambio,
+      propina,
       fecha
     );
 
@@ -256,8 +252,7 @@ export async function POST({ request }) {
         subtotal,
         envio,
         total,
-        efectivoCon,
-        cambio,
+        propina,
         fecha,
         mensaje:
           'Pedido registrado. El pago se realiza en efectivo contra entrega.',

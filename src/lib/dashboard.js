@@ -133,14 +133,10 @@ export function parsearPedido(fila) {
     subtotal: Number(fila.subtotal) || 0,
     envio: Number(fila.envio) || 0,
     total: Number(fila.total) || 0,
-    efectivoCon:
-      fila.efectivo_con === null || fila.efectivo_con === undefined
+    propina:
+      fila.propina === null || fila.propina === undefined
         ? null
-        : Number(fila.efectivo_con),
-    cambio:
-      fila.cambio === null || fila.cambio === undefined
-        ? null
-        : Number(fila.cambio),
+        : Number(fila.propina),
     estadoInfo: infoEstado(fila.estado),
     fechaTexto: formatearFechaHora(fila.fecha),
   };

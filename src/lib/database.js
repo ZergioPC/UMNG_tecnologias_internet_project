@@ -65,10 +65,17 @@ db.exec(`
     total INTEGER NOT NULL,
     metodo TEXT NOT NULL DEFAULT 'contra_entrega',
     estado TEXT NOT NULL DEFAULT 'pendiente',
+    propina INTEGER,
     efectivo_con INTEGER,
     cambio INTEGER,
     fecha TEXT NOT NULL
   )
 `);
+
+// Migración para bases de datos creadas antes de la propina.
+const columnasPagos = db.prepare('PRAGMA table_info(pagos)').all();
+if (!columnasPagos.some((columna) => columna.name === 'propina')) {
+  db.exec('ALTER TABLE pagos ADD COLUMN propina INTEGER');
+}
 
 export default db;
