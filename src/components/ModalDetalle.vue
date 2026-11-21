@@ -63,118 +63,118 @@ function agregarAlPedido() {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div
-        v-if="isOpen && producto"
-        class="modal-backdrop"
-        @click.self="cerrar"
-        role="dialog"
-        aria-modal="true"
-        :aria-labelledby="`modal-title-${producto.id}`"
-      >
-        <div class="modal-dialog">
-          <button
-            type="button"
-            class="modal-btn-cerrar"
-            @click="cerrar"
-            aria-label="Cerrar ventana emergente"
-          >
-            &times;
-          </button>
+  <!-- Sin Teleport: al hidratar varios islands Vue de Astro, teleportar a "body"
+       hace que ambos modales compartan el mismo nodo del DOM y el segundo falle. -->
+  <Transition name="modal-fade">
+    <div
+      v-if="isOpen && producto"
+      class="modal-backdrop"
+      @click.self="cerrar"
+      role="dialog"
+      aria-modal="true"
+      :aria-labelledby="`modal-title-${producto.id}`"
+    >
+      <div class="modal-dialog">
+        <button
+          type="button"
+          class="modal-btn-cerrar"
+          @click="cerrar"
+          aria-label="Cerrar ventana emergente"
+        >
+          &times;
+        </button>
 
-          <div class="modal-grid">
-            <!-- Columna Imagen -->
-            <div class="modal-imagen-container">
-              <img
-                :src="producto.imagen"
-                :alt="producto.nombre"
-                class="modal-imagen"
-              />
-              <span v-if="producto.badge" class="modal-badge-flotante">
-                {{ producto.badge }}
-              </span>
+        <div class="modal-grid">
+          <!-- Columna Imagen -->
+          <div class="modal-imagen-container">
+            <img
+              :src="producto.imagen"
+              :alt="producto.nombre"
+              class="modal-imagen"
+            />
+            <span v-if="producto.badge" class="modal-badge-flotante">
+              {{ producto.badge }}
+            </span>
+          </div>
+
+          <!-- Columna Información -->
+          <div class="modal-info">
+            <div class="modal-header-info">
+              <span class="modal-categoria">{{ producto.categoria.toUpperCase() }}</span>
+              <h3 :id="`modal-title-${producto.id}`" class="modal-titulo">
+                {{ producto.nombre }}
+              </h3>
+              <div class="modal-precio-row">
+                <span class="modal-precio">{{ producto.precioFormateado }}</span>
+                <span v-if="producto.porcion" class="modal-meta-tag">
+                  👥 {{ producto.porcion }}
+                </span>
+                <span v-if="producto.tiempoPrep" class="modal-meta-tag">
+                  ⏱️ {{ producto.tiempoPrep }}
+                </span>
+              </div>
             </div>
 
-            <!-- Columna Información -->
-            <div class="modal-info">
-              <div class="modal-header-info">
-                <span class="modal-categoria">{{ producto.categoria.toUpperCase() }}</span>
-                <h3 :id="`modal-title-${producto.id}`" class="modal-titulo">
-                  {{ producto.nombre }}
-                </h3>
-                <div class="modal-precio-row">
-                  <span class="modal-precio">{{ producto.precioFormateado }}</span>
-                  <span v-if="producto.porcion" class="modal-meta-tag">
-                    👥 {{ producto.porcion }}
-                  </span>
-                  <span v-if="producto.tiempoPrep" class="modal-meta-tag">
-                    ⏱️ {{ producto.tiempoPrep }}
+            <div class="modal-cuerpo">
+              <p class="modal-descripcion">
+                {{ producto.descripcionLarga || producto.descripcionCorta }}
+              </p>
+
+              <div v-if="producto.ingredientes && producto.ingredientes.length" class="modal-ingredientes-box">
+                <h4 class="modal-subtitulo">Ingredientes destacados:</h4>
+                <div class="modal-tags">
+                  <span
+                    v-for="(ing, idx) in producto.ingredientes"
+                    :key="idx"
+                    class="modal-tag"
+                  >
+                    {{ ing }}
                   </span>
                 </div>
               </div>
+            </div>
 
-              <div class="modal-cuerpo">
-                <p class="modal-descripcion">
-                  {{ producto.descripcionLarga || producto.descripcionCorta }}
-                </p>
-
-                <div v-if="producto.ingredientes && producto.ingredientes.length" class="modal-ingredientes-box">
-                  <h4 class="modal-subtitulo">Ingredientes destacados:</h4>
-                  <div class="modal-tags">
-                    <span
-                      v-for="(ing, idx) in producto.ingredientes"
-                      :key="idx"
-                      class="modal-tag"
-                    >
-                      {{ ing }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="modal-footer-actions">
-                <div class="modal-contador">
-                  <button
-                    type="button"
-                    class="btn-qty"
-                    @click="cantidad > 1 ? cantidad-- : null"
-                    :disabled="cantidad <= 1"
-                    aria-label="Disminuir cantidad"
-                  >
-                    -
-                  </button>
-                  <span class="qty-numero">{{ cantidad }}</span>
-                  <button
-                    type="button"
-                    class="btn-qty"
-                    @click="cantidad++"
-                    aria-label="Aumentar cantidad"
-                  >
-                    +
-                  </button>
-                </div>
-
+            <div class="modal-footer-actions">
+              <div class="modal-contador">
                 <button
                   type="button"
-                  class="btn-pedir"
-                  :class="{ 'btn-exito': agregado }"
-                  @click="agregarAlPedido"
+                  class="btn-qty"
+                  @click="cantidad > 1 ? cantidad-- : null"
+                  :disabled="cantidad <= 1"
+                  aria-label="Disminuir cantidad"
                 >
-                  <span v-if="!agregado">
-                    🛒 Agregar al Pedido ({{ producto.precioFormateado }})
-                  </span>
-                  <span v-else>
-                    ✓ ¡Agregado al pedido!
-                  </span>
+                  -
+                </button>
+                <span class="qty-numero">{{ cantidad }}</span>
+                <button
+                  type="button"
+                  class="btn-qty"
+                  @click="cantidad++"
+                  aria-label="Aumentar cantidad"
+                >
+                  +
                 </button>
               </div>
+
+              <button
+                type="button"
+                class="btn-pedir"
+                :class="{ 'btn-exito': agregado }"
+                @click="agregarAlPedido"
+              >
+                <span v-if="!agregado">
+                  🛒 Agregar al Pedido ({{ producto.precioFormateado }})
+                </span>
+                <span v-else>
+                  ✓ ¡Agregado al pedido!
+                </span>
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
