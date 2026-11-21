@@ -57,6 +57,7 @@ const formatPrice = (price: number) =>
   }
 
   const STORAGE_KEY = "chinos_cart";
+  const MAX_CANTIDAD = 20;
   const $headerCartArticle = document.querySelector("#header_carrito");
   const $headerCartBtn = document.querySelector("#btn_header_cart");
   const $closeCartBtn = document.querySelector("#btn_close_cart");
@@ -66,6 +67,9 @@ const formatPrice = (price: number) =>
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("es-CO").format(price);
+
+  const qtyBtnStyle =
+    "width: 24px; height: 24px; border: none; border-radius: 6px; background: #f3f4f6; color: #222; cursor: pointer; font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center;";
 
   function getCart(): CartItem[] {
     try {
@@ -115,37 +119,47 @@ const formatPrice = (price: number) =>
         $cartProductsList.innerHTML = cart
           .map(
             (item, index) => `
-          <div class="cart-product-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
-            <div style="display: flex; flex-direction: column; gap: 3px; max-width: 65%;">
+          <div class="cart-product-item" style="padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
               <span style="font-weight: 700; font-size: 0.92rem; color: #111; line-height: 1.2;">${item.name}</span>
-              <span style="font-size: 0.8rem; color: #666;">Cant: ${item.cantidad} &times; $${formatPrice(item.price)}</span>
+              <span style="font-weight: 800; color: #b12715; font-size: 0.95rem; white-space: nowrap;">$${formatPrice(item.price * item.cantidad)}</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: 800; color: #b12715; font-size: 0.95rem;">$${formatPrice(item.price * item.cantidad)}</span>
-              <button 
-                type="button" 
-                class="btn-eliminar-item" 
-                data-index="${index}" 
-                style="background: #f3f4f6; border: none; color: #666; cursor: pointer; font-size: 1.1rem; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;"
-                title="Eliminar unidad"
-                aria-label="Eliminar ${item.name}"
-              >&times;</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px;">
+              <span style="font-size: 0.8rem; color: #666;">$${formatPrice(item.price)} / unidad</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <button
+                    type="button"
+                    class="btn-restar-item"
+                    data-index="${index}"
+                    style="${qtyBtnStyle}"
+                    title="Restar una unidad"
+                    aria-label="Restar una unidad de ${item.name}"
+                  >&minus;</button>
+                  <span style="min-width: 18px; text-align: center; font-weight: 700; font-size: 0.9rem;">${item.cantidad}</span>
+                  <button
+                    type="button"
+                    class="btn-sumar-item"
+                    data-index="${index}"
+                    style="${qtyBtnStyle}"
+                    title="Sumar una unidad"
+                    aria-label="Sumar una unidad de ${item.name}"
+                  >+</button>
+                </div>
+                <button
+                  type="button"
+                  class="btn-eliminar-item"
+                  data-index="${index}"
+                  style="background: #f3f4f6; border: none; color: #666; cursor: pointer; font-size: 1.1rem; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;"
+                  title="Eliminar ${item.name} del carrito"
+                  aria-label="Eliminar ${item.name} del carrito"
+                >&times;</button>
+              </div>
             </div>
           </div>
         `
           )
           .join("");
-
-        // Listeners para eliminar / restar
-        $cartProductsList.querySelectorAll(".btn-eliminar-item").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            const idx = parseInt(
-              (e.currentTarget as HTMLElement).dataset.index || "0",
-              10
-            );
-            eliminarDelCarrito(idx);
-          });
-        });
       }
     }
 
@@ -155,19 +169,55 @@ const formatPrice = (price: number) =>
     }
   }
 
+  function cambiarCantidad(index: number, delta: number) {
+    const cart = getCart();
+    const item = cart[index];
+    if (!item) return;
+
+    item.cantidad = Math.min(
+      MAX_CANTIDAD,
+      (item.cantidad || 1) + delta
+    );
+    if (item.cantidad <= 0) {
+      cart.splice(index, 1);
+    }
+
+    saveCart(cart);
+    renderCart();
+    window.dispatchEvent(new CustomEvent("cart:updated"));
+  }
+
   function eliminarDelCarrito(index: number) {
     const cart = getCart();
     if (index >= 0 && index < cart.length) {
-      if (cart[index].cantidad > 1) {
-        cart[index].cantidad--;
-      } else {
-        cart.splice(index, 1);
-      }
+      cart.splice(index, 1);
       saveCart(cart);
       renderCart();
       window.dispatchEvent(new CustomEvent("cart:updated"));
     }
   }
+
+  // Delegación de eventos: los botones se recrean en cada renderCart
+  $cartProductsList?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const btn = target.closest<HTMLButtonElement>(
+      ".btn-restar-item, .btn-sumar-item, .btn-eliminar-item"
+    );
+    if (!btn) return;
+
+    const index = parseInt(btn.dataset.index ?? "", 10);
+    if (Number.isNaN(index)) return;
+
+    if (btn.classList.contains("btn-restar-item")) {
+      cambiarCantidad(index, -1);
+    } else if (btn.classList.contains("btn-sumar-item")) {
+      cambiarCantidad(index, 1);
+    } else {
+      eliminarDelCarrito(index);
+    }
+  });
 
   function agregarAlCarrito(producto: {
     id?: number;
@@ -221,19 +271,20 @@ const formatPrice = (price: number) =>
   });
 
   document.addEventListener("click", (event) => {
+    // composedPath conserva la ruta original aunque renderCart reemplace el botón
+    // clickeado; usar contains(event.target) cerraba el carrito al eliminar items.
+    const path = event.composedPath();
+    const target = event.target instanceof Element ? event.target : null;
+
     if (
-      !$headerCartArticle?.contains(event.target as Node) &&
-      !$headerCartBtn?.contains(event.target as Node) &&
-      !(event.target as HTMLElement)?.closest(".btn-agregar-rapido") &&
-      !(event.target as HTMLElement)?.closest(".btn-card-agregar") &&
-      !(event.target as HTMLElement)?.closest(".btn-pedir")
+      (!$headerCartArticle || !path.includes($headerCartArticle)) &&
+      (!$headerCartBtn || !path.includes($headerCartBtn)) &&
+      !target?.closest(".btn-agregar-rapido") &&
+      !target?.closest(".btn-card-agregar") &&
+      !target?.closest(".btn-pedir")
     ) {
       toggleCart(false);
     }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") toggleCart(false);
   });
 
   // Escuchar cuando cualquier componente Vue añade un plato
